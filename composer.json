@@ -1,5 +1,5 @@
 {
-    "name": "friendsofsymfony/elastica-bundle",
+    "name": "mfuturepl/elastica-bundle",
     "description": "Elasticsearch PHP integration for your Symfony project using Elastica",
     "license": "MIT",
     "type": "symfony-bundle",

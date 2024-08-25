@@ -31,6 +31,7 @@ class TransformedFinder implements PaginatedFinderInterface, PaginatedRawFinderI
 {
     protected SearchableInterface $searchable;
     protected ElasticaToModelTransformerInterface $transformer;
+    protected array $suggests = [];
 
     public function __construct(SearchableInterface $searchable, ElasticaToModelTransformerInterface $transformer)
     {
@@ -99,6 +100,11 @@ class TransformedFinder implements PaginatedFinderInterface, PaginatedRawFinderI
         return new RawPaginatorAdapter($this->searchable, $query, $options);
     }
 
+    public function getSuggests(): array
+    {
+        return $this->suggests;
+    }
+
     /**
      * @phpstan-param TQuery $query
      * @phpstan-param TOptions $options
@@ -107,13 +113,18 @@ class TransformedFinder implements PaginatedFinderInterface, PaginatedRawFinderI
      *
      * @return Result[]
      */
-    protected function search($query, ?int $limit = null, array $options = [])
+    protected function search($query, ?int $limit = null, array $options = [], bool $withSuggests = false)
     {
         $queryObject = Query::create($query);
         if (null !== $limit) {
             $queryObject->setSize($limit);
         }
 
-        return $this->searchable->search($queryObject, $options)->getResults();
+        $result = $this->searchable->search($queryObject, $options);
+        if ($result->hasSuggests()) {
+            $this->suggests = $result->getSuggests();
+        }
+
+        return $result->getResults();
     }
 }
